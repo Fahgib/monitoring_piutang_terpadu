@@ -21,10 +21,11 @@ import FilterBar from '../components/FilterBar';
 const JUDUL_TAB = {
   'pivot-sheet3': 'Rekapitulasi Matriks Pivot per ID Pelanggan (Format Sheet 3 Excel)',
   menunggak: 'Semua Langganan Menunggak Aktif (Data Sheet 1)',
-  'kat-n16': 'Kategori Piutang N16 - Tagihan Susulan P2TL',
-  'kat-n27': 'Kategori Piutang N27 - Angsuran Biaya Penyambungan (BP)',
-  'kat-r8n7': 'Kategori Piutang R8 (Prabayar) & N7 (Kompensasi UJL)',
-  'kat-n26prr': 'Kategori Piutang N26 & Pindah Piutang Ragu-Ragu (Gerak 41)',
+  'kat-n16': 'Jenis Piutang: N16 - TS P2TL (Tagihan Susulan P2TL)',
+  'kat-n26': 'Jenis Piutang: N26 - Angsuran PRR (Piutang Ragu-Ragu)',
+  'kat-n27': 'Jenis Piutang: N27 - Angsuran BP (Biaya Penyambungan)',
+  'kat-n7': 'Jenis Piutang: N7 - KOMPENSASI UJL (Uang Jaminan Langganan)',
+  'kat-r8': 'Jenis Piutang: R8 - Piutang Prabayar',
 };
 
 const INITIAL_FILTERS = {
@@ -86,11 +87,13 @@ export default function PageKategoriTunggakan({
     }));
   };
 
+  // Pemetaan sumber data untuk 5 Jenis Piutang terpisah
   let sumberData = stats.pelangganMenunggakArray;
   if (activeTab === 'kat-n16') sumberData = stats.katN16P2TL;
+  if (activeTab === 'kat-n26') sumberData = stats.katN26PRR;
   if (activeTab === 'kat-n27') sumberData = stats.katN27BP;
-  if (activeTab === 'kat-r8n7') sumberData = stats.katR8N7;
-  if (activeTab === 'kat-n26prr') sumberData = stats.katN26PRR;
+  if (activeTab === 'kat-n7') sumberData = stats.katN7UJL;
+  if (activeTab === 'kat-r8') sumberData = stats.katR8Prabayar;
   if (hanyaTop50) sumberData = stats.top50Pareto;
 
   const filteredData = useMemo(() => {

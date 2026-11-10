@@ -8,7 +8,7 @@ import PageReportHarian from './pages/PageReportHarian';
 import PageKategoriTunggakan from './pages/PageKategoriTunggakan';
 import PageLingkupDaerah from './pages/PageLingkupDaerah';
 import { hitungStatistikDashboard } from './utils/piutangCalculator';
-import { CheckCircle2, Sparkles, X } from 'lucide-react';
+import { Sparkles, X } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('upload');
@@ -25,7 +25,6 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [notifRekonsiliasi, setNotifRekonsiliasi] = useState(null);
 
-  // Simpan otomatis ke localStorage agar tidak hilang saat browser di-refresh
   useEffect(() => {
     try {
       localStorage.setItem('pln_piutang_files', JSON.stringify(uploadedFiles));
@@ -36,8 +35,9 @@ export default function App() {
 
   const handleAddFiles = (newFiles) => {
     setUploadedFiles((prev) => {
-      // Fitur Rekonsiliasi Otomatis (Auto-Detect Perubahan Lunas)
-      const dataLamaIdPel = new Set(prev.flatMap((f) => f.records.map((r) => r.idPelanggan)));
+      const dataLamaIdPel = new Set(
+        prev.flatMap((f) => f.records.map((r) => r.idPelanggan))
+      );
       let jumlahPelangganBaruLunas = 0;
 
       if (prev.length > 0) {
@@ -154,7 +154,6 @@ export default function App() {
             }}
           />
 
-          {/* Banner Notifikasi Rekonsiliasi Otomatis */}
           {notifRekonsiliasi && (
             <div className="mx-6 mt-4 p-4 rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-md text-xs font-bold">
               <div className="flex items-center gap-2">
@@ -201,9 +200,10 @@ export default function App() {
               'pivot-sheet3',
               'menunggak',
               'kat-n16',
+              'kat-n26',
               'kat-n27',
-              'kat-r8n7',
-              'kat-n26prr',
+              'kat-n7',
+              'kat-r8',
             ].includes(activeTab) && (
               <PageKategoriTunggakan
                 activeTab={activeTab}

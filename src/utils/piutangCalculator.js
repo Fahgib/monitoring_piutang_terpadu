@@ -22,25 +22,29 @@ export function hitungStatistikDashboard(records) {
   const totalRupiahLunas = lunasList.reduce((sum, r) => sum + r.rpTagihan, 0);
   const totalRupiahBatal = batalList.reduce((sum, r) => sum + r.rpTagihan, 0);
 
-  // Deteksi PRR Ragu-Ragu (02/02/2222 atau gerak 41)
   const isPrrAnomali = (r) =>
     r.tglJatuhTempo === '02/02/2222' || r.kodeGerakMasuk.includes('41');
 
   const menunggakMurniList = menunggakList.filter((r) => !isPrrAnomali(r));
-  const totalRupiahMenunggakMurni = menunggakMurniList.reduce((sum, r) => sum + r.rpTagihan, 0);
+  const totalRupiahMenunggakMurni = menunggakMurniList.reduce(
+    (sum, r) => sum + r.rpTagihan,
+    0
+  );
 
-  // Riwayat angsuran lunas per ID Pelanggan
   const riwayatLunasPerPelanggan = {};
   lunasList.forEach((r) => {
     if (!riwayatLunasPerPelanggan[r.idPelanggan]) {
-      riwayatLunasPerPelanggan[r.idPelanggan] = { lembarLunas: 0, rpLunas: 0, daftarLunas: [] };
+      riwayatLunasPerPelanggan[r.idPelanggan] = {
+        lembarLunas: 0,
+        rpLunas: 0,
+        daftarLunas: [],
+      };
     }
     riwayatLunasPerPelanggan[r.idPelanggan].lembarLunas += 1;
     riwayatLunasPerPelanggan[r.idPelanggan].rpLunas += r.rpTagihan;
     riwayatLunasPerPelanggan[r.idPelanggan].daftarLunas.push(r);
   });
 
-  // Kelompokkan Pelanggan Menunggak
   const mapPelangganMenunggak = {};
   menunggakList.forEach((r) => {
     if (!mapPelangganMenunggak[r.idPelanggan]) {
@@ -83,31 +87,36 @@ export function hitungStatistikDashboard(records) {
     p.totalTagihan += r.rpTagihan;
     p.daftarTagihan.push(r);
 
-    if (r.kodePembpp === 'N16') p.n16 += r.rpTagihan;
-    else if (r.kodePembpp === 'N26') p.n26 += r.rpTagihan;
-    else if (r.kodePembpp === 'N27') p.n27 += r.rpTagihan;
-    else if (r.kodePembpp === 'N7') p.n7 += r.rpTagihan;
-    else if (r.kodePembpp === 'R8') p.r8 += r.rpTagihan;
+    if (r.kodePembpp === 'N16' || r.jenisPiutang.startsWith('N16')) p.n16 += r.rpTagihan;
+    else if (r.kodePembpp === 'N26' || r.jenisPiutang.startsWith('N26')) p.n26 += r.rpTagihan;
+    else if (r.kodePembpp === 'N27' || r.jenisPiutang.startsWith('N27')) p.n27 += r.rpTagihan;
+    else if (r.kodePembpp === 'N7' || r.jenisPiutang.startsWith('N7')) p.n7 += r.rpTagihan;
+    else if (r.kodePembpp === 'R8' || r.jenisPiutang.startsWith('R8')) p.r8 += r.rpTagihan;
   });
 
   const pelangganMenunggakArray = Object.values(mapPelangganMenunggak).sort(
     (a, b) => b.totalTagihan - a.totalTagihan
   );
 
-  // Top 50 Prioritas Pareto
   const top50Pareto = pelangganMenunggakArray.slice(0, 50);
 
-  // Kategori Jenis Piutang
-  const katN16P2TL = pelangganMenunggakArray.filter((p) => p.n16 > 0 || p.kodePembpp === 'N16');
-  const katN27BP = pelangganMenunggakArray.filter((p) => p.n27 > 0 || p.kodePembpp === 'N27');
-  const katR8N7 = pelangganMenunggakArray.filter(
-    (p) => p.r8 > 0 || p.n7 > 0 || ['R8', 'N7'].includes(p.kodePembpp)
+  // 5 Kategori Jenis Piutang Terpisah Sesuai Filter Excel: N16, N26, N27, N7, R8
+  const katN16P2TL = pelangganMenunggakArray.filter(
+    (p) => p.n16 > 0 || p.kodePembpp === 'N16' || p.jenisPiutang.startsWith('N16')
   );
   const katN26PRR = pelangganMenunggakArray.filter(
-    (p) => p.n26 > 0 || p.isPrrAnomali || p.kodePembpp === 'N26'
+    (p) => p.n26 > 0 || p.kodePembpp === 'N26' || p.jenisPiutang.startsWith('N26')
+  );
+  const katN27BP = pelangganMenunggakArray.filter(
+    (p) => p.n27 > 0 || p.kodePembpp === 'N27' || p.jenisPiutang.startsWith('N27')
+  );
+  const katN7UJL = pelangganMenunggakArray.filter(
+    (p) => p.n7 > 0 || p.kodePembpp === 'N7' || p.jenisPiutang.startsWith('N7')
+  );
+  const katR8Prabayar = pelangganMenunggakArray.filter(
+    (p) => p.r8 > 0 || p.kodePembpp === 'R8' || p.jenisPiutang.startsWith('R8')
   );
 
-  // Komponen Rupiah
   const komponenRupiah = {
     angsuranP2tl: menunggakList.reduce((s, r) => s + r.rpAngsuranP2tl, 0),
     angsuranBp: menunggakList.reduce((s, r) => s + r.rpAngsuranBp, 0),
@@ -117,12 +126,17 @@ export function hitungStatistikDashboard(records) {
     ppjuPpnBk: menunggakList.reduce((s, r) => s + r.rpPpju + r.rpPpn + r.rpBk, 0),
   };
 
-  // Rekap Daya
   const mapDaya = {};
   menunggakList.forEach((r) => {
     const key = r.daya ? `${r.daya} VA` : 'Lainnya';
     if (!mapDaya[key]) {
-      mapDaya[key] = { daya: key, nilaiDaya: r.daya || 0, lembar: 0, rupiah: 0, pelangganSet: new Set() };
+      mapDaya[key] = {
+        daya: key,
+        nilaiDaya: r.daya || 0,
+        lembar: 0,
+        rupiah: 0,
+        pelangganSet: new Set(),
+      };
     }
     mapDaya[key].lembar += 1;
     mapDaya[key].rupiah += r.rpTagihan;
@@ -138,7 +152,6 @@ export function hitungStatistikDashboard(records) {
     }))
     .sort((a, b) => b.rupiah - a.rupiah);
 
-  // Rekap Tarif
   const mapTarif = {};
   menunggakList.forEach((r) => {
     const key = r.tarif || 'Lainnya';
@@ -158,7 +171,6 @@ export function hitungStatistikDashboard(records) {
     }))
     .sort((a, b) => b.rupiah - a.rupiah);
 
-  // Rekap Jenis Piutang
   const mapJenisPiutang = {};
   menunggakList.forEach((r) => {
     const key = r.jenisPiutang || 'Lainnya';
@@ -178,7 +190,6 @@ export function hitungStatistikDashboard(records) {
     }))
     .sort((a, b) => b.rupiah - a.rupiah);
 
-  // Rekap Daerah
   const mapDaerah = {};
   records.forEach((r) => {
     const kode = r.kodeWilayah || '54410';
@@ -207,7 +218,6 @@ export function hitungStatistikDashboard(records) {
     jumlahPelangganMenunggak: d.pelangganMenunggakSet.size,
   }));
 
-  // Report Harian Lunas
   const mapHarianLunas = {};
   lunasList.forEach((r) => {
     const tgl = r.tglPelunasan !== '-' ? r.tglPelunasan : 'Tanpa Tanggal';
@@ -257,9 +267,10 @@ export function hitungStatistikDashboard(records) {
     lunasList,
     batalList,
     katN16P2TL,
-    katN27BP,
-    katR8N7,
     katN26PRR,
+    katN27BP,
+    katN7UJL,
+    katR8Prabayar,
     komponenRupiah,
     rekapDaya,
     rekapTarif,

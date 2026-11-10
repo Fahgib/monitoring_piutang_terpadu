@@ -8,6 +8,7 @@ import {
   Wrench,
   CreditCard,
   AlertOctagon,
+  Coins,
   Table2,
   MapPin,
   Map,
@@ -51,6 +52,7 @@ export default function Sidebar({
     },
   ];
 
+  // Kelima Jenis Piutang sesuai Filter Excel: N16, N26, N27, N7, R8
   const menuKategori = [
     {
       id: 'menunggak',
@@ -61,10 +63,17 @@ export default function Sidebar({
     },
     {
       id: 'kat-n16',
-      label: 'N16 - Tagihan P2TL',
+      label: 'N16 - TS P2TL',
       icon: ShieldAlert,
       badge: stats.katN16P2TL.length,
       badgeColor: 'bg-rose-100 text-rose-700 font-bold',
+    },
+    {
+      id: 'kat-n26',
+      label: 'N26 - Angsuran PRR',
+      icon: AlertOctagon,
+      badge: stats.katN26PRR.length,
+      badgeColor: 'bg-orange-100 text-orange-800 font-bold',
     },
     {
       id: 'kat-n27',
@@ -74,18 +83,18 @@ export default function Sidebar({
       badgeColor: 'bg-sky-100 text-sky-700 font-bold',
     },
     {
-      id: 'kat-r8n7',
-      label: 'R8 & N7 (Prabayar/UJL)',
-      icon: CreditCard,
-      badge: stats.katR8N7.length,
-      badgeColor: 'bg-indigo-100 text-indigo-700 font-bold',
+      id: 'kat-n7',
+      label: 'N7 - Kompensasi UJL',
+      icon: Coins,
+      badge: stats.katN7UJL.length,
+      badgeColor: 'bg-teal-100 text-teal-800 font-bold',
     },
     {
-      id: 'kat-n26prr',
-      label: 'N26 & Ragu-Ragu (PRR)',
-      icon: AlertOctagon,
-      badge: stats.katN26PRR.length,
-      badgeColor: 'bg-orange-100 text-orange-800 font-bold',
+      id: 'kat-r8',
+      label: 'R8 - Piutang Prabayar',
+      icon: CreditCard,
+      badge: stats.katR8Prabayar.length,
+      badgeColor: 'bg-indigo-100 text-indigo-700 font-bold',
     },
   ];
 
@@ -145,7 +154,6 @@ export default function Sidebar({
       }`}
     >
       <div className="p-4 space-y-5">
-        {/* Logo Resmi PLN dari file LOGO PLN.jpeg */}
         <div className="flex items-center gap-3 pb-3 border-b border-slate-200 dark:border-slate-800">
           <img
             src="/logo-pln.jpeg"
@@ -155,7 +163,7 @@ export default function Sidebar({
           <div>
             <h1 className="text-xs font-extrabold tracking-wide">PT PLN (PERSERO)</h1>
             <p className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold">
-              Monitoring Piutang Terpadu
+              UP3 Jatinegara
             </p>
           </div>
         </div>
@@ -182,7 +190,6 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Kotak Daftar File Masuk di Pojok Kiri Bawah */}
       <div
         className={`p-3 m-3 rounded-xl border ${
           darkMode
