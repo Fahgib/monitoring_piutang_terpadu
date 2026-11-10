@@ -62,7 +62,6 @@ export default function PageKategoriTunggakan({
   const [checkedIds, setCheckedIds] = useState([]);
   const [copiedWaTim, setCopiedWaTim] = useState(false);
 
-  // Simpan status kunjungan lapangan per IDPEL di localStorage
   const [statusLapanganMap, setStatusLapanganMap] = useState(() => {
     try {
       const saved = localStorage.getItem('pln_status_kunjungan');
@@ -149,7 +148,6 @@ export default function PageKategoriTunggakan({
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Pilih Semua di Halaman Aktif
   const handleCheckAllPage = (e) => {
     if (e.target.checked) {
       setCheckedIds(paginatedData.map((p) => p.idPelanggan));
@@ -158,7 +156,6 @@ export default function PageKategoriTunggakan({
     }
   };
 
-  // Pilih 10 Terbesar Sekali Klik
   const handleSelectTop10 = () => {
     const top10Ids = filteredData.slice(0, 10).map((p) => p.idPelanggan);
     setCheckedIds(top10Ids);
@@ -172,7 +169,6 @@ export default function PageKategoriTunggakan({
     }
   };
 
-  // Ambil target: jika ada yang dicentang pakai yang dicentang, jika kosong otomatis ambil halaman aktif!
   const getTargetPelanggan = () => {
     if (checkedIds.length > 0) {
       return filteredData.filter((p) => checkedIds.includes(p.idPelanggan));
@@ -180,7 +176,6 @@ export default function PageKategoriTunggakan({
     return paginatedData;
   };
 
-  // Cetak Surat Tugas Pintar (Tanpa Blokir Error Alert)
   const handleCetakSuratTugasKolektif = () => {
     const terpilih = getTargetPelanggan();
     if (terpilih.length === 0) return;
@@ -210,9 +205,9 @@ export default function PageKategoriTunggakan({
 
     win.document.write(`
       <html>
-        <head><title>Surat Tugas Penagihan Kolektif PLN</title></head>
+        <head><title>Surat Tugas Penagihan Kolektif PLN UP3 Jatinegara</title></head>
         <body style="font-family:sans-serif;padding:24px;color:#0f172a;">
-          <h2 style="margin:0;text-align:center;">PT PLN (PERSERO) - UNIT PELAKSANA PELAYANAN PELANGGAN</h2>
+          <h2 style="margin:0;text-align:center;">PT PLN (PERSERO) UP3 JATINEGARA</h2>
           <p style="margin:4px 0 16px;text-align:center;font-size:13px;color:#475569;">SURAT TUGAS OPERASI PENAGIHAN PIUTANG KOLEKTIF LAPANGAN</p>
           <hr/>
           <p style="font-size:13px;margin:12px 0;">
@@ -235,7 +230,7 @@ export default function PageKategoriTunggakan({
             <tbody>${barisHtml}</tbody>
           </table>
           <div style="margin-top:40px;display:flex;justify-content:space-between;font-size:13px;">
-            <div><p>Mengetahui,<br/>Supervisor Pelayanan Pelanggan</p><br/><br/><p>( .................................... )</p></div>
+            <div><p>Mengetahui,<br/>Manajer / Supervisor UP3 Jatinegara</p><br/><br/><p>( .................................... )</p></div>
             <div style="text-align:right;"><p>Petugas Eksekusi Lapangan</p><br/><br/><p>( .................................... )</p></div>
           </div>
           <script>window.print();</script>
@@ -245,13 +240,12 @@ export default function PageKategoriTunggakan({
     win.document.close();
   };
 
-  // Salin Daftar Target ke WhatsApp Grup Tim Lapangan (Tanpa Perlu Cetak Kertas)
   const handleCopyTargetKeWaTim = () => {
     const targetList = getTargetPelanggan().slice(0, 15);
     const totalRp = targetList.reduce((s, p) => s + p.totalTagihan, 0);
 
     const teks = [
-      `*DAFTAR TARGET OPERASI PENAGIHAN PIUTANG PLN*`,
+      `*DAFTAR TARGET OPERASI PENAGIHAN PIUTANG - PLN UP3 JATINEGARA*`,
       `Kategori: ${JUDUL_TAB[activeTab] || 'Penagihan Aktif'}`,
       `Jumlah Target: ${targetList.length} Pelanggan (${formatRupiah(totalRp)})`,
       `--------------------------------------------`,
@@ -268,7 +262,6 @@ export default function PageKategoriTunggakan({
     setTimeout(() => setCopiedWaTim(false), 2500);
   };
 
-  // Eksekusi Lunas Massal 1-Klik
   const handleMarkLunasMassal = () => {
     if (checkedIds.length === 0) return;
     checkedIds.forEach((id) => onMarkPaidToday(id));
@@ -276,9 +269,8 @@ export default function PageKategoriTunggakan({
   };
 
   const handleKirimWhatsApp = (p) => {
-    const pesan = `Yth. Bpk/Ibu *${p.nama}* (IDPEL: *${p.idPelanggan}*).\n\nKami dari PT PLN (Persero) menginformasikan terdapat tagihan piutang listrik sebesar *${formatRupiah(
-      p.totalTagihan
-    )}* (${p.jumlahLembar} Lembar - ${p.jenisPiutang}).\n\nMohon kesediaannya melakukan pembayaran melalui PLN Mobile, ATM, atau loket PPOB terdekat. Terima kasih.`;
+    const pesan = `Selamat Pagi/Siang/Sore,\nYth. Bapak/Ibu *${p.nama}*\n\nSemoga Bapak/Ibu senantiasa dalam keadaan sehat. Kami dari *PT PLN (Persero) UP3 Jatinegara* izin menyampaikan informasi terkait administrasi tagihan piutang listrik pada:\n\n• ID Pelanggan: *${p.idPelanggan}*\n• Nama Pelanggan: *${p.nama}*\n• Tarif / Daya: *${p.tarif} / ${p.daya.toLocaleString('id-ID')} VA*\n• Jenis Tagihan: *${p.jenisPiutang} (${p.jumlahLembar} Lembar)*\n• Total Tagihan: *${formatRupiah(p.totalTagihan)}*\n\nDemi kenyamanan dan kelancaran layanan kelistrikan Bapak/Ibu, kami memohon kesediaannya untuk dapat melakukan penyelesaian pembayaran melalui aplikasi *PLN Mobile*, ATM/Mobile Banking, atau loket pembayaran (PPOB) resmi terdekat, maupun berkoordinasi dengan petugas pelayanan kami di kantor PLN UP3 Jatinegara.\n\nApabila Bapak/Ibu telah melakukan pembayaran, kami ucapkan terima kasih dan mohon abaikan pesan ini.\n\nHormat kami,\n*PT PLN (Persero) UP3 Jatinegara*`;
+
     window.open(
       `https://api.whatsapp.com/send?text=${encodeURIComponent(pesan)}`,
       '_blank'
@@ -328,7 +320,6 @@ export default function PageKategoriTunggakan({
 
   return (
     <div className="space-y-4 pb-16">
-      {/* Header Kategori & Pintasan Praktis */}
       <div
         className={`rounded-2xl border p-5 flex flex-wrap items-center justify-between gap-4 ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
@@ -353,7 +344,6 @@ export default function PageKategoriTunggakan({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Saklar Sembunyikan PRR 02/02/2222 */}
           <button
             onClick={() => setSembunyikanPrr(!sembunyikanPrr)}
             className={`px-3 py-2 rounded-xl text-xs font-bold border transition cursor-pointer flex items-center gap-1.5 ${
@@ -368,7 +358,6 @@ export default function PageKategoriTunggakan({
             {sembunyikanPrr ? 'PRR 02/02/2222 Disembunyikan' : 'Sembunyikan PRR (02/02/2222)'}
           </button>
 
-          {/* Tombol Top 50 Pareto */}
           <button
             onClick={() => setHanyaTop50(!hanyaTop50)}
             className={`px-3 py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
@@ -382,7 +371,6 @@ export default function PageKategoriTunggakan({
             {hanyaTop50 ? '⚡ Mode Top 50 Aktif' : '⚡ Fokus Top 50 Pareto'}
           </button>
 
-          {/* Tombol Salin Target ke WA Grup Tim */}
           <button
             onClick={handleCopyTargetKeWaTim}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs cursor-pointer"
@@ -398,7 +386,6 @@ export default function PageKategoriTunggakan({
             )}
           </button>
 
-          {/* Tombol Cetak Surat Tugas Pintar (Otomatis Cetak Halaman Ini Jika Belum Ada Centang) */}
           <button
             onClick={handleCetakSuratTugasKolektif}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-xs cursor-pointer"
@@ -418,7 +405,6 @@ export default function PageKategoriTunggakan({
         </div>
       </div>
 
-      {/* Komponen Filter Berlapis */}
       <FilterBar
         filters={filters}
         setFilters={setFilters}
@@ -428,7 +414,6 @@ export default function PageKategoriTunggakan({
         totalHasil={filteredData.length}
       />
 
-      {/* Baris Pintasan Seleksi Cepat & Filter Status Kunjungan */}
       <div
         className={`rounded-xl border px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
@@ -460,7 +445,6 @@ export default function PageKategoriTunggakan({
           )}
         </div>
 
-        {/* Filter Status Kunjungan Lapangan */}
         <div className="flex items-center gap-1.5">
           <span className="text-slate-400 font-semibold">Status Lapangan:</span>
           {['ALL', ...OPSI_KUNJUNGAN].map((st) => (
@@ -483,7 +467,6 @@ export default function PageKategoriTunggakan({
         </div>
       </div>
 
-      {/* Tabel Data Utama (Kotak Centang Tersedia di Semua Tab Termasuk Pivot Sheet 3!) */}
       <div
         className={`rounded-2xl border p-5 ${
           darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'
@@ -549,6 +532,13 @@ export default function PageKategoriTunggakan({
                       {formatRupiah(p.totalTagihan)}
                     </td>
                     <td className="py-2.5 px-3 text-right space-x-1 whitespace-nowrap">
+                      <button
+                        onClick={() => handleKirimWhatsApp(p)}
+                        title="Kirim Pesan WhatsApp Penagihan"
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-[11px] font-bold cursor-pointer"
+                      >
+                        <MessageSquare className="w-3 h-3" /> WA
+                      </button>
                       <button
                         onClick={() => setSelectedPelanggan(p)}
                         className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-[11px] font-bold cursor-pointer ${
@@ -695,7 +685,6 @@ export default function PageKategoriTunggakan({
           )}
         </div>
 
-        {/* Navigasi Pagination */}
         <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
           <span className="text-slate-500">
             Menampilkan halaman <strong>{currentPage}</strong> dari{' '}
@@ -721,7 +710,6 @@ export default function PageKategoriTunggakan({
         </div>
       </div>
 
-      {/* Bilah Aksi Massal Melayang (Floating Action Bar Saat Ada Pelanggan Dicentang) */}
       {checkedIds.length > 0 && (
         <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-4 text-xs">
           <span className="font-extrabold text-teal-400">
@@ -754,7 +742,6 @@ export default function PageKategoriTunggakan({
         </div>
       )}
 
-      {/* Modal Detail Lembar Angsuran */}
       {selectedPelanggan && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
           <div
